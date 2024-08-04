@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        /* iPHONE SE + RETINA PORTRAIT STYLES */
+        @media only screen and (min-device-width: 360px) and (max-device-width: 667px) and (max-device-height: 915px) and (orientation:portrait) {
+            #surah {
+                margin-left: unset !important;
+                margin-bottom: 20px !important;
+                width: 100% !important;
+            }
+
+            #juz {
+                margin-right: unset !important;
+                margin-top: 20px !important;
+                width: 100% !important;
+            }
+
+        }
+
+
+        /* Galaxy S8 PORTRAIT STYLES */
+        @media only screen and (min-device-width: 360px) and (max-device-width: 740px) and (max-device-height: 740px) and (orientation:portrait) {
+            .imgcontainer {
+                width: 100% !important;
+                height: 730px !important;
+                text-align: center;
+                background-position: center center !important;
+            }
+
+        }
+
+        /* iPHONE SE + RETINA PORTRAIT STYLES */
+        @media only screen and (min-device-width: 375px) and (max-device-width: 1180px) and (max-device-height: 1180px) and (orientation:portrait) {
+            .imgcontainer {
+                width: 100% !important;
+                height: 760px !important;
+                text-align: center;
+                background-position: center center !important;
+            }
+
+        }
+
+        /* Galaxy S20 PORTRAIT STYLES */
+        @media only screen and (min-device-width: 412px) and (max-device-width: 915px) and (max-device-height: 915px) and (orientation:portrait) {
+            .imgcontainer {
+                width: 100% !important;
+                height: 830px !important;
+                text-align: center;
+                background-position: center center !important;
+            }
+
+        }
+
+
+        /* iPHONE XR + RETINA PORTRAIT STYLES */
+        @media only screen and (min-device-width: 390px) and (max-device-width: 915px) and (max-device-height: 915px) and (orientation:portrait) {
+            .imgcontainer {
+                width: 100% !important;
+                height: 800px !important;
+                text-align: center;
+                background-position: center center !important;
+            }
+        }
+
+        /* ipad MINI PORTRAIT STYLES */
+        @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (max-device-height: 1024px) and (orientation:portrait) {
+            .imgcontainer {
+                width: 100% !important;
+                height: 1010px !important;
+                text-align: center;
+                background-position: center center !important;
+            }
+        }
+
+        /* iPHONE SE + RETINA LANDSCAPE STYLES */
+        @media only screen and (max-device-width: 1180px) and (min-device-width: 375px) and (max-device-height: 1180px) and (orientation:landscape) {
+            .imgcontainer {
+                width: 100% !important;
+                height: 1350px !important;
+                text-align: center;
+                background-position: center center !important;
+            }
+        }
+
+        body {
+            background-color: #fff;
+            padding: 0px;
+            margin: 0px;
+        }
+
+        #app {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center
+        }
+
+        #app div {
+            border: 0 solid #ccc
+        }
+
+        .paging {
+            align-items: center;
+            text-align: center;
+            background-color: #ccc;
+            padding: 8px;
+        }
+
+        .imgcontainer {
+            width: 640px;
+            height: 840px;
+            text-align: center
+        }
+
+        .paging input,
+        .paging select,
+        .paging button {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .paging input {
+            width: 60px;
+        }
+
+        #juz {
+            margin-right: 20px;
+            width: 170px;
+        }
+
+        #surah {
+            margin-left: 20px;
+            width: 170px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"  ondrag="dragStart(event)" draggable="false">
+        <div id="imgKanan" class="imgcontainer"><a id="anchorKanan"></a></div>
+        <div id="imgKiri" class="imgcontainer"><a id="anchorKiri"></a></div>
+    </div>
+    <div class="paging">
+        <select id="surah" onchange="surahChange(this.value)" dir="ltr">
+            <option value="0" disabled>: SURAH :</option>
+        </select>
+        <button id="prev">
+            &lt;&lt;
+        </button>
+        <input type="text" name="page" pattern="\d{3}" oninput="this.value=this.value.replace(/(?![0-9])./gmi,'')"
+            maxlength="3" onkeyup="this.value=minmax(this.value, 1, 604)" value="1" onchange="update(this.value)" />
+        <button id="next">
+            &gt;&gt;
+        </button>
+        <select id="juz" onchange="juzChangeOnly(this.value)" dir="ltr">
+            <option value="0" disabled>: JUZ :</option>
+        </select>
+    </div>
+
+    <script>
+        function dragStart(event) {
+            // console.log(event.pageX);
+        }
+
+        function surahInit() {
+            fetch('surah.json')
+                .then(response => response.json())
+                .then(data => {
+                    var selectSurah = document.getElementById('surah');
+                    data.forEach(function (item, index, arr) {
+                        var opt = document.createElement('option');
+                        if (index < 113) {
+                            opt.value = [item.page, data[index + 1].page];
+                        } else {
+                            opt.value = [item.page, item.page];
+                        }
+                        opt.innerHTML = item.no + '. ' + item.name;
+                        selectSurah.appendChild(opt);
+                    });
+                    var surah = window.localStorage.getItem('surah');
+                    if (surah) {
+                        document.getElementById('surah').selectedIndex = surah;
+                    }
+                });
+        }
+
+        function isBetween(value, min, max) {
+            return (value - min) * (value - max) <= 0
+        }
+
+        function surahChange(value) {
+            var split = value.split(',');
+            if (parseInt(split[0]) > 0) {
+                update(split[0]);
+            }
+        }
+        function juzChangeOnly(value) {
+            if (parseInt(value) > 0) {
+                var p = (parseInt(value) - 1) * 20 + 2;
+                update(p);
+            }
+        }
+        function juzInit() {
+            var selectJuz = document.getElementById('juz');
+            for (var i = 1; i <= 30; i++) {
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.innerHTML = i;
+                selectJuz.appendChild(opt);
+            }
+        }
+        function minmax(value, min, max) {
+            if (parseInt(value) < min || isNaN(parseInt(value))) {
+                return min;
+            }
+            else if (parseInt(value) > max) {
+                return max;
+            }
+            else {
+                return value;
+            }
+        }
+        function store(value) {
+            if (parseInt(value) || !isNaN(parseInt(value))) {
+                window.localStorage.setItem('page', value);
+            }
+        }
+        function update(value) {
+            store(value); var pg = window.localStorage.getItem('page'); if (pg != null) { document.getElementsByName("page")[0].value = pg }
+            if (parseInt(value) > 0 && parseInt(value) <= 604) {
+                var valueKanan = 0; var valueKiri = 0;
+                if (parseInt(value) % 2 == 0) {
+                    valueKanan = parseInt(value) - 1;
+                    valueKiri = parseInt(value);
+                } else {
+                    valueKanan = parseInt(value);
+                    valueKiri = parseInt(value) + 1;
+                }
+                var fileKanan = zeroPad(valueKanan, 3);
+                var imgKanan = document.getElementById('imgKanan');
+                imgKanan.style.backgroundImage = 'url(pocket/' + fileKanan + '.jpg)';
+                imgKanan.style.backgroundSize = 'cover';
+                imgKanan.style.backgroundRepeat = 'no-repeat';
+                imgKanan.style.backgroundPosition = 'center left';
+                var aKanan = document.getElementById('anchorKanan');
+                aKanan.setAttribute('name', valueKanan);
+                imgKanan.appendChild(aKanan);
+
+                var fileKiri = zeroPad(valueKiri, 3);
+                var imgKiri = document.getElementById('imgKiri');
+
+                imgKiri.style.backgroundImage = 'url(pocket/' + fileKiri + '.jpg)';
+                imgKiri.style.backgroundSize = 'cover';
+                imgKiri.style.backgroundRepeat = 'no-repeat';
+                imgKiri.style.backgroundPosition = 'center right';
+                var aKiri = document.getElementById('anchorKiri');
+                aKiri.setAttribute('name', valueKiri);
+                imgKiri.appendChild(aKiri);
+
+                var juz = Math.ceil(parseInt(value) / 20);
+                document.getElementById('juz').selectedIndex = juz;
+                if (parseInt(value) > 600) {
+                    document.getElementById('juz').selectedIndex = 30;
+                }
+
+                var selectSurah = document.getElementById('surah');
+                for (let index = 0; index < selectSurah.length; index++) {
+                    var element = selectSurah[index].value.split(',');
+                    if (isBetween(value, element[0], element[1] - 1)) {
+                        selectSurah.selectedIndex = index;
+                        window.localStorage.setItem('surah', index);
+                        break;
+                    }
+                }
+            }
+            window.location.hash = '#' + value;
+        }
+
+        function zeroPad(num, places) {
+            var zero = places - num.toString().length + 1;
+            return Array(+(zero > 0 && zero)).join("0") + num
+        }
+
+        function init() {
+            surahInit();
+            juzInit();
+            var pg = window.localStorage.getItem('page');
+            if (pg != null) {
+                update(pg);
+            } else {
+                update(1);
+            }
+            var prev = document.getElementById("prev");
+            prev.addEventListener("click", function (e) {
+                e.preventDefault();
+                var val = document.getElementsByName("page")[0].value;
+                if (parseInt(val) > 2) {
+                    if (parseInt(val) % 2 == 0) {
+                        update(parseInt(val) - 2);
+                    } else {
+                        update(parseInt(val) - 1);
+                    }
+                }
+            }, !1);
+            var next = document.getElementById("next");
+            next.addEventListener("click", function (e) {
+                e.preventDefault();
+                var val = document.getElementsByName("page")[0].value;
+                if (parseInt(val) < 603) {
+                    if (parseInt(val) % 2 == 0) {
+                        update(parseInt(val) + 1);
+                    } else {
+                        update(parseInt(val) + 2);
+                    }
+                }
+            }, !1)
+        }; init()
+    </script>
+
+</body>
+
+</html>
